@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FixWriting - To-Be Verb Counter</title>
+    <meta name="description" content="FixWriting helps you count and highlight 'to be' verbs in your writing. Improve your writing style by tracking verb usage.">
+
+    <meta property="og:title" content="FixWriting - To-Be Verb Counter">
+    <meta property="og:description" content="FixWriting helps you count and highlight 'to be' verbs in your writing. Improve your writing style by tracking verb usage.">
+    <meta name="og:type" content="website">
+
+	<!-- Favicon -->
+	<link rel="icon" href="logo.png" type="image/x-icon">
+
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+	<link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <h1>FixWriting - To-Be Verb Counter</h1>
+    <div id="to-be-verb-counter">
+        <div id="inputText" contenteditable="true" data-placeholder="Enter your text here..."></div>
+        <button class="verb-counter" onclick="highlightToBeVerbs()">Count Verbs</button>
+        <p id="result"></p>
+        <p id="result1"></p>
+    </div>
+	<button class="options-opener" onclick="openOptionsMenu()">options</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOptionsMenu()">&times;</span>
+            <h3>Options</h3>
+            <p>Choose whether to count 'to be' verbs inside quotes:</p>
+            
+            <label class="switch">
+                <input type="checkbox" id="countInQuotes" checked>
+                <span class="slider"></span>
+            </label>
+            <p id="quoteStatus">Counting verbs inside quotes is ON.</p>
+        </div>
+    </div>
+
+	<script>
+        let countInQuotes = true; // default value
+
+        // this also counts the number of to-be verbs
+		function highlightToBeVerbs() {
+            const toBeVerbs = /\b(is|was|be|can|shall|should|could|been|were|are|will|would|do|does|did|may|might|must|have|has|had)\b/gi;
+            const textarea = document.getElementById('inputText');
+            const text = textarea.innerText;
+
+            let highlightedText = text;
+
+            // count all to-be verbs
+            highlightedText = highlightedText.replace(toBeVerbs, (match) => {
+                return `<span class='highlight'>${match}</span>`;
+            });
+
+            let verbCount = (text.match(toBeVerbs) || []).length;
+			
+			let verbCount1 = 0;
+            if (countInQuotes === false) {
+				const quotePattern = /“([^”]+)”/g;
+                highlightedText = highlightedText.replace(quotePattern, (quote) => {
+                    // Count verbs only within the quoted text (inside the quotes)
+                    const quotedText = quote.replace(toBeVerbs, (match) => {
+						verbCount1++;
+                        return `<span class='highlight1'>${match}</span>`;
+                    });
+					console.log(verbCount1);
+
+                    return quotedText;
+                });
+            }
+
+			const trueVerbCount = Math.abs(verbCount - verbCount1);
+
+            // update results
+            document.getElementById("result").innerText = `Number of 'to be' verbs: ${trueVerbCount}`;
+            document.getElementById("result1").innerText = `Number of omited 'to be' verbs: ${verbCount1}`;
+
+            // set text to the new highlighted text
+            textarea.innerHTML = highlightedText;
+        }
+
+        function openOptionsMenu() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "flex";
+        }
+
+        function closeOptionsMenu() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        document.getElementById("countInQuotes").addEventListener("change", function() {
+            countInQuotes = this.checked;
+            document.getElementById("quoteStatus").innerText = countInQuotes ? "Counting verbs inside quotes is ON." : "Counting verbs inside quotes is OFF.";
+        });
+
+        // close pop up if user clicks out of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("myModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+	
+</body>
+</html>
